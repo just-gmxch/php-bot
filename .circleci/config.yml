@@ -1,0 +1,78 @@
+version: 2.1
+
+parameters:
+  login:
+    type: string
+    default: ""
+
+jobs:
+  run-js-php:
+    docker:
+      - image: cimg/node:20  # Node.js 20 + basic Linux
+    environment:
+      FAUCET_LOGIN: << parameters.login >>
+    steps:
+      - checkout
+
+      - run:
+          name: Install Puppeteer
+          command: npm install puppeteer
+
+      - run:
+          name: Run Puppeteer login
+          command: |
+            node <<'EOF'
+            const puppeteer = require('puppeteer');
+            const fs = require('fs');
+
+            (async () => {
+                const email = process.env.FAUCET_LOGIN;
+                const browser = await puppeteer.launch({
+                    headless: true,
+                    args: ['--no-sandbox', '--disable-setuid-sandbox']
+                });
+                const page = await browser.newPage();
+
+                await page.goto('https://coolfaucet.hu/', { waitUntil: 'domcontentloaded', timeout: 0 });
+                await page.type('input[name="email"]', email);
+                await page.click('button[type="submit"]');
+
+                await page.waitForFunction(
+                  () => document.body.innerText.includes('Balance:'),
+                  { timeout: 60000 }
+                );
+
+                const balance = await page.$eval(
+                  '.stat-item:first-child .ms-2',
+                  el => el.innerText.trim()
+                );
+
+                console.log('=== LOGIN SUCCESS ===');
+                console.log('Balance:', balance);
+
+                const cookies = await page.cookies();
+                const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+
+                console.log('Captured cookies:');
+                console.log(cookieString);
+
+                fs.writeFileSync('cookie.txt', cookieString);
+                console.log('Cookie saved');
+
+                await browser.close();
+            })();
+            EOF
+
+      - run:
+          name: Setup PHP
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y php8.2-cli
+            chmod +x coolfaucet/coolfaucet.php
+            php coolfaucet/coolfaucet.php
+
+workflows:
+  build-and-run:
+    jobs:
+      - run-js-php:
+          login: "<< pipeline.parameters.login >>"
