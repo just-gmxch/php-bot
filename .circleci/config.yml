@@ -14,7 +14,7 @@ jobs:
         type: string
         default: ""
     docker:
-      - image: cimg/node:20
+      - image: cimg/node:20.19-browsers
     environment:
       FAUCET_LOGIN: << parameters.login >>
     steps:
