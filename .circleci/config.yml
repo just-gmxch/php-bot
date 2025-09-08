@@ -1,12 +1,18 @@
 version: 2.1
 
+# 1️⃣ Pipeline-level parameter (manual input)
 parameters:
   login:
     type: string
     default: ""
 
 jobs:
+  # 2️⃣ Job-level declaration
   run-js-php:
+    parameters:
+      login:
+        type: string
+        default: ""
     docker:
       - image: cimg/node:20
     environment:
@@ -40,13 +46,11 @@ jobs:
                     await page.type('input[name="email"]', email);
                     await page.click('button[type="submit"]');
 
-                    // Tunggu sampai ada tulisan Balance
                     await page.waitForFunction(
                         () => document.body.innerText.includes('Balance:'),
                         { timeout: 60000 }
                     );
 
-                    // Ambil Balance
                     const balance = await page.$eval(
                         '.stat-item:first-child .ms-2',
                         el => el.innerText.trim()
@@ -55,7 +59,6 @@ jobs:
                     console.log('=== LOGIN SUCCESS ===');
                     console.log('Balance:', balance);
 
-                    // Ambil cookies
                     const cookies = await page.cookies();
                     const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
 
@@ -81,6 +84,7 @@ jobs:
             chmod +x coolfaucet/coolfaucet.php
             php coolfaucet/coolfaucet.php
 
+# 3️⃣ Workflow
 workflows:
   build-and-run:
     jobs:
