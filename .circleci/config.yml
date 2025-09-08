@@ -21,7 +21,7 @@ jobs:
       - run:
           name: Run Puppeteer login
           command: |
-            node <<'EOF'
+            node \<<'EOF'
             const puppeteer = require('puppeteer');
             const fs = require('fs');
 
