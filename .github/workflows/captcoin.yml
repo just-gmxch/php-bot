@@ -6,9 +6,9 @@ on:
       username:
         description: 'CaptchaCoin Username'
         required: true
-      password:
-        description: 'CaptchaCoin password'
-        required: true
+     # password:
+      #  description: 'CaptchaCoin password'
+        #required: true
 
 jobs:
   run-bot:
