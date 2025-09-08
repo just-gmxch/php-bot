@@ -7,6 +7,12 @@ on:
         description: 'Enter your LOGIN'
         required: true
         type: string
+  workflow_call:
+    inputs:
+      login:
+        description: 'Enter your LOGIN'
+        required: true
+        type: string
 
 jobs:
   run-js:
