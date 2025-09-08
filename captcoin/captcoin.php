@@ -63,7 +63,7 @@ system('clear');
 echo color("=== CaptchaCoin Bot ===\n","36");
 
 // --- LOGIN ---
-$loginPage = curlGet($loginUrl);
+$loginPage = curlGet($loginUrl . "?t=" . time());
 preg_match('/name="_wpnonce" value="([^"]+)"/', $loginPage, $m); $wpnonce = $m[1]?? '';
 preg_match('/name="form_id" value="([^"]+)"/', $loginPage, $m); $formId = $m[1]?? '21';
 preg_match('/name="redirect_to" value="([^"]+)"/', $loginPage, $m); $redirectTo = $m[1]?? '';
