@@ -1,0 +1,19 @@
+name: Call <workflow>
+
+  #adjust this like workflow targer
+
+on:
+  workflow_dispatch:
+    inputs:
+      <inputs>:
+        description: 'description'
+        required: true
+        type: string
+        
+ #adjust to what u want
+        
+jobs:
+  call-coolfaucet:
+    uses: gmxch/php-bot/.github/workflows/<workflow>.yml@main
+    with:
+      <env>: ${{ inputs.<input> }}
