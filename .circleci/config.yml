@@ -85,7 +85,6 @@ jobs:
               php-curl \
               php-mbstring \
               php-xml \
-              php-openssl \
               php-zip
             chmod +x coolfaucet/coolfaucet.php
             php coolfaucet/coolfaucet.php
