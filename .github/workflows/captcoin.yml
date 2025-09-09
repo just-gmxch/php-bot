@@ -1,14 +1,17 @@
-name: captcoin.php
+name: Run Captcoin Bot
 
 on:
   workflow_dispatch:
     inputs:
-      username:
-        description: 'CaptchaCoin Username'
+      bot:
+        description: 'Pilih bot untuk dijalankan'
         required: true
-     # password:
-      #  description: 'CaptchaCoin password'
-        #required: true
+        default: 'captcoin.php'
+      username:
+        description: 'Username'
+        required: true
+      #password:
+        #description: 'Password'
 
 jobs:
   run-bot:
@@ -24,10 +27,10 @@ jobs:
           php-version: '8.2'
 
       - name: Set executable permission
-        run: chmod +x captcoin/captcoin.php
+        run: chmod +x captcoin/${{ github.event.inputs.bot }}
 
-      - name: Run Captcoin.php
-        run: php captcoin/captcoin.php
+      - name: Run selected bot
+        run: php captcoin/${{ github.event.inputs.bot }}
         env:
           USERNAME: ${{ github.event.inputs.username }}
-          PASSWORD: 'memeX3213!' #${{ github.event.inputs.password }}
+          PASSWORD: 'memeX3213!'
