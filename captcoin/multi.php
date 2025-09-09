@@ -101,7 +101,7 @@ function submitCaptcha($ua){
 }
 
 // === Input multi akun (copy-paste) ===
-$input = getenv('ACCOUNTS');
+$input = getenv('USERNAME');
 $password = getenv('PASSWORD');
 $items = explode(" ", $input);
 $accounts = [];
