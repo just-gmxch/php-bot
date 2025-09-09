@@ -6,7 +6,11 @@ on:
       bot:
         description: 'Pilih bot untuk dijalankan'
         required: true
-        default: 'captcoin.php'
+        default: ''
+        type: choice
+        options:
+          - single.php
+          - multi.php
       username:
         description: 'Username'
         required: true
