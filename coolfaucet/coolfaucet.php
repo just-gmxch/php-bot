@@ -1,247 +1,299 @@
+
 <?php
 date_default_timezone_set("Asia/Kuala_Lumpur");
 
-// 🎨 Header
-echo "\n\033[1;35m🔥 BOT COOLFAUCET - Created by Akiefx \033[0m\n";
+echo "\n\033[1;35m🔥 COOLFAUCET CREATOR BY - AKIEFX 🇲🇾\033[0m\n";
+echo "\033[1;36mMasukkan full Cookie:\033[0m ";
+/*$cookie = trim(fgets(STDIN));
+echo "\033[1;36mMasukkan User-Agent:\033[0m ";
+$userAgent = trim(fgets(STDIN));*/
 
 $cookie = file_get_contents('cookie.txt');
 $uagent = file(__DIR__ . '/../USRAGNT.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-/* 
-$cookie = readline('COOKIE: ');
-$uagent = file('USRAGNT.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES); */
-
 $userAgent = $uagent[array_rand($uagent)];
 echo "set UA => $userAgent\n";
 
-// 🔗 URL aksi
-$attackUrl     = "https://coolfaucet.hu/dashboard";
-$statusUrl     = "https://coolfaucet.hu/dashboard";
-$rewardUrl     = "https://coolfaucet.hu/claim-reward";
-$claimCardUrl  = "https://coolfaucet.hu/dashboard/claim_card";
-$withdrawUrl   = "https://coolfaucet.hu/withdraw";
-$inventoryUrl  = "https://coolfaucet.hu/inventory";
-$referer       = "https://coolfaucet.hu/";
+$base = "https://coolfaucet.hu";
+$dashboard = "$base/dashboard";
+$faucet = "$base/faucet";
+$faucetClaim = "$base/faucet_claim";
+$reward = "$base/claim-reward";
+$claimCard = "$dashboard/claim_card";
+$withdraw = "$base/withdraw";
+$addDamage = "$dashboard/add_damage";
+$referer = $base;
 
-/* Ambil username dari HTML dashboard
-function getUsername($url, $cookie, $userAgent, $referer) {
+function curlGet($url, $cookie, $ua, $ref)
+{
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_COOKIE => $cookie,
-        CURLOPT_USERAGENT => $userAgent,
-        CURLOPT_HTTPHEADER => ["Referer: $referer"]
+        CURLOPT_USERAGENT => $ua,
+        CURLOPT_HTTPHEADER => ["Referer: $ref"],
     ]);
-    $html = curl_exec($ch);
+    $res = curl_exec($ch);
     curl_close($ch);
-    preg_match('/<a class="nav-link dropdown-toggle"[^>]*>\s*([^<]+)\s*<\/a>/i', $html, $match);
-        return trim($match[1]?? 0);
+    return $res;
 }
 
-// Semak HP monster
-function getMonsterHP($url, $cookie, $userAgent, $referer) {
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_COOKIE => $cookie,
-        CURLOPT_USERAGENT => $userAgent,
-        CURLOPT_HTTPHEADER => ["Referer: $referer"]
-    ]);
-    $html = curl_exec($ch);
-    curl_close($ch);
-    preg_match('/HP:\s*(\d+)\s*\/\s*\d+/', $html, $hpMatch);
-    return intval($hpMatch[1]?? 0);
-}
-
-// Ambil balance dari dashboard
-function getBalance($url, $cookie, $userAgent, $referer) {
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_COOKIE => $cookie,
-        CURLOPT_USERAGENT => $userAgent,
-        CURLOPT_HTTPHEADER => ["Referer: $referer"]
-    ]);
-    $html = curl_exec($ch);
-    curl_close($ch);
-    preg_match('/\(\s*([\d\.]+)\s*LTC\s*\)/i', $html, $match);
-    return floatval($match[1]?? 0);
-}
-*/
-// Serang monster
-function attackMonster($url, $cookie, $userAgent, $referer) {
-    $data = ['attack' => 1];
+function curlPost($url, $data, $cookie, $ua, $ref)
+{
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => http_build_query($data),
         CURLOPT_COOKIE => $cookie,
-        CURLOPT_USERAGENT => $userAgent,
+        CURLOPT_USERAGENT => $ua,
         CURLOPT_HTTPHEADER => [
-            "Referer: $referer",
-            "Content-Type: application/x-www-form-urlencoded"
-        ]
+            "Referer: $ref",
+            "Content-Type: application/x-www-form-urlencoded",
+        ],
     ]);
-    $response = curl_exec($ch);
+    $res = curl_exec($ch);
     curl_close($ch);
-    echo "[". date("H:i:s"). "] \033[1;32m⚔️ Serangan dihantar.\033[0m\n";
-    echo "[". date("H:i:s"). "] 📩 Respons: ". trim(strip_tags($response)). "\n";
+    return $res;
 }
 
-// Klaim reward
-function claimReward($url, $cookie, $userAgent, $referer) {
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST => true,
-        CURLOPT_COOKIE => $cookie,
-        CURLOPT_USERAGENT => $userAgent,
-        CURLOPT_HTTPHEADER => ["Referer: $referer"]
-    ]);
-    $response = curl_exec($ch);
-    curl_close($ch);
-    echo "[". date("H:i:s"). "] \033[1;33m🎁 Reward dituntut.\033[0m\n";
-    echo "[". date("H:i:s"). "] 📩 Respons: ". trim(strip_tags($response)). "\n";
+function getMonsterDetails($url, $cookie, $ua, $ref)
+{
+    $html = curlGet($url, $cookie, $ua, $ref);
+    preg_match(
+        '/<span class="monster-title">([^<]+)<\/span>/',
+        $html,
+        $nameMatch,
+    );
+    preg_match(
+        "/<strong>\s*HP:\s*(\d+)\s*\/\s*(\d+)\s*<\/strong>/",
+        $html,
+        $hpMatch,
+    );
+    preg_match("/XP:\s*(\d+)/", $html, $xpMatch);
+    preg_match(
+        "/Reward:\s*(\d+)\s*tokens\s*\(([\d\.]+)\s*LTC\)/",
+        $html,
+        $rewardMatch,
+    );
+    return [
+        "name" => $nameMatch[1] ?? "Unknown",
+        "hpNow" => intval($hpMatch[1] ?? 0),
+        "hpMax" => intval($hpMatch[2] ?? 0),
+        "xp" => intval($xpMatch[1] ?? 0),
+        "tokens" => intval($rewardMatch[1] ?? 0),
+        "ltc" => floatval($rewardMatch[2] ?? 0),
+    ];
 }
 
-// Klaim kartu
-function claimInventoryCard($statusUrl, $claimCardUrl, $cookie, $userAgent, $referer) {
-    $ch = curl_init($statusUrl);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_COOKIE => $cookie,
-        CURLOPT_USERAGENT => $userAgent,
-        CURLOPT_HTTPHEADER => ["Referer: $referer"]
-    ]);
-    $html = curl_exec($ch);
-    curl_close($ch);
-    if (strpos($html, 'You have won an Inventory Card')!== false) {
-        echo "[". date("H:i:s"). "] \033[1;35m🃏 Kartu ditemukan! Mengklaim...\033[0m\n";
-        $ch = curl_init($claimCardUrl);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_COOKIE => $cookie,
-            CURLOPT_USERAGENT => $userAgent,
-            CURLOPT_HTTPHEADER => ["Referer: $referer"]
-        ]);
-        $response = curl_exec($ch);
-        curl_close($ch);
-        echo "[". date("H:i:s"). "] Kartu diklaim.\n";
-        echo "[". date("H:i:s"). "] Respons: ". trim(strip_tags($response)). "\n";
+function getDamageStatus($url, $cookie, $ua, $ref)
+{
+    $html = curlGet($url, $cookie, $ua, $ref);
+    if (
+        preg_match(
+            "/Damage:<\/span>\s*<span[^>]*>(\d+)\s*\/\s*(\d+)/",
+            $html,
+            $match,
+        )
+    ) {
+        return [intval($match[1]), intval($match[2])];
+    }
+    return [null, null];
 }
-} 
 
-function ClaimInventory($inventoryUrl, $cookie, $userAgent, $referer) {
-    $ch = curl_init($inventoryUrl);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_COOKIE => $cookie,
-        CURLOPT_USERAGENT => $userAgent,
-        CURLOPT_HTTPHEADER => ["Referer: $referer"]
-    ]);
-    $html = curl_exec($ch);
-    curl_close($ch);
+function getTotalDamage($url, $cookie, $ua, $ref)
+{
+    $html = curlGet($url, $cookie, $ua, $ref);
+    if (
+        preg_match(
+            "/Your Total Damage:\s*<span[^>]*>(\d+)<\/span>/",
+            $html,
+            $match,
+        )
+    ) {
+        return intval($match[1]);
+    }
+    return null;
+}
 
-    // Find all inventory IDs
-    preg_match_all('/<input type="hidden" name="inventory_id" value="(\d+)">/', $html, $matches);
+function getTokenBalance($html)
+{
+    if (
+        preg_match(
+            "/Balance:<\/span>\s*<span[^>]*>\s*(\d+)\s+tokens/i",
+            $html,
+            $match,
+        )
+    ) {
+        return intval($match[1]);
+    }
+    return 0;
+}
 
-    if (empty($matches[1])) {
-        echo "[".date("H:i:s")."] \033[1;33mTidak ada kartu untuk diklaim.\033[0m\n";
+function addDamage($url, $cookie, $ua, $ref)
+{
+    curlPost($url, ["amount" => "20"], $cookie, $ua, $ref);
+    echo "[" . date("H:i:s") . "] 🧨 Damage +20 dihantar\n";
+}
+
+function attackMonster($url, $cookie, $ua, $ref)
+{
+    curlPost($url, ["attack" => 1], $cookie, $ua, $ref);
+    echo "[" . date("H:i:s") . "] ⚔️ Serangan dihantar\n";
+}
+
+function claimReward($url, $cookie, $ua, $ref)
+{
+    curlPost($url, [], $cookie, $ua, $ref);
+    echo "[" . date("H:i:s") . "] 🎁 Reward dituntut\n";
+}
+
+function claimCard($statusUrl, $claimUrl, $cookie, $ua, $ref)
+{
+    $html = curlGet($statusUrl, $cookie, $ua, $ref);
+    if (strpos($html, "Inventory Card") !== false) {
+        echo "[" . date("H:i:s") . "] 🃏 Kartu ditemukan! Mengklaim...\n";
+        curlPost($claimUrl, [], $cookie, $ua, $ref);
+    }
+}
+function getBalance($url, $cookie, $ua, $ref)
+{
+    $html = curlGet($url, $cookie, $ua, $ref);
+    if (preg_match("/\(([\d\.]+)\s*LTC\)/i", $html, $m)) {
+        return floatval($m[1]);
+    }
+    return 0;
+}
+
+function autoWithdraw($url, $cookie, $ua, $ref)
+{
+    curlPost(
+        $url,
+        ["withdraw_all" => "1", "currency" => "LTC"],
+        $cookie,
+        $ua,
+        $ref,
+    );
+    echo "[" . date("H:i:s") . "] 💸 Auto WD dihantar\n";
+}
+
+function readCaptchaInstruction($html)
+{
+    $validColors = ["red", "orange", "yellow", "green", "blue", "purple"];
+    if (
+        preg_match(
+            "/Click\s+the\s+<strong>(\w+)<\/strong>\s+circle/i",
+            $html,
+            $match,
+        )
+    ) {
+        $color = strtolower($match[1]);
+        if (in_array($color, $validColors)) {
+            return $color;
+        }
+    }
+    foreach ($validColors as $color) {
+        if (preg_match("/click. _?$color._?circle/i", $html)) {
+            return $color;
+        }
+    }
+    return null;
+}
+
+function claimFaucet($cookie, $ua, $ref)
+{
+    $html = curlGet("https://coolfaucet.hu/faucet", $cookie, $ua, $ref);
+    file_put_contents("debug_faucet.html", $html);
+    if (strpos($html, "Faucet not ready yet") !== false) {
+        echo "[" .
+            date("H:i:s") .
+            "] ⏳ Faucet belum sedia. Tunggu sebentar...\n";
         return;
     }
-
-    foreach ($matches[1] as $id) {
-        echo "[". date("H:i:s"). "] \033[1;35mKartu ditemukan! ID: $id, Mengklaim...\033[0m\n";
-
-        $ch = curl_init("https://coolfaucet.hu/inventory/use");
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => http_build_query(['inventory_id' => $id]),
-            CURLOPT_COOKIE => $cookie,
-            CURLOPT_USERAGENT => $userAgent,
-            CURLOPT_HTTPHEADER => ["Referer: $inventoryUrl"]
-        ]);
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        echo "[". date("H:i:s"). "] Kartu ID $id diklaim.\n";
-        echo "[". date("H:i:s"). "] Respons: ". trim(strip_tags($response)). "\n";
-    }
-}
-
-// Auto withdraw
-function autoWithdraw($withdrawUrl, $cookie, $userAgent, $referer) {
-    $data = [
-        'withdraw_all' => '1',
-        'currency' => 'LTC'
-    ];
-    $ch = curl_init($withdrawUrl);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => http_build_query($data),
-        CURLOPT_COOKIE => $cookie,
-        CURLOPT_USERAGENT => $userAgent,
-        CURLOPT_HTTPHEADER => [
-            "Referer: $referer",
-            "Content-Type: application/x-www-form-urlencoded"
-        ]
-    ]);
-    $response = curl_exec($ch);
-    curl_close($ch);
-    echo "[". date("H:i:s"). "] \033[1;36m💸 Auto WD ke FaucetPay dihantar.\033[0m\n";
-    echo "[". date("H:i:s"). "] 📩 Respons: ". trim(strip_tags($response)). "\n";
-}
-
-// Loop utama
-while (true) {
-    echo "\n[". date("H:i:s"). "] \033[1;35m Kitaran bermula...\033[0m\n";
-
-    // Fetch dashboard once
-    $ch = curl_init($statusUrl);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_COOKIE => $cookie,
-        CURLOPT_USERAGENT => $userAgent,
-        CURLOPT_HTTPHEADER => ["Referer: $referer"]
-    ]);
-    $html = curl_exec($ch);
-    curl_close($ch);
-
-    // Parse username
-    preg_match('/<a[^>]*id="navbarDropdown"[^>]*>\s*([^<]+)\s*<\/a>/i', $html, $match);
-    $username = trim($match[1] ?? '');
-    echo "[". date("H:i:s"). "] \033[1;35m Username: $username\033[0m\n";
-
-    // Parse HP
-    preg_match('/HP:\s*(\d+)\s*\/\s*\d+/', $html, $hpMatch);
-    $hp = intval($hpMatch[1] ?? 0);
-    echo "[". date("H:i:s"). "] HP Monster: \033[1;36m$hp\033[0m\n";
-
-    // Parse balance
-    preg_match('/\(\s*([\d\.]+)\s*LTC\s*\)/i', $html, $balMatch);
-    $balance = floatval($balMatch[1] ?? 0);
-    echo "[". date("H:i:s"). "] Balance: \033[1;32m".number_format($balance,8)." LTC\033[0m\n";
-
-    // Attack or claim reward
-    if ($hp > 3) {
-        attackMonster($attackUrl, $cookie, $userAgent, $referer);
+    $color = readCaptchaInstruction($html);
+    if ($color) {
+        echo "[" . date("H:i:s") . "] 🧠 Arahan captcha: klik warna '$color'\n";
+        $res = curlPost(
+            "https://coolfaucet.hu/faucet_claim",
+            ["color" => $color],
+            $cookie,
+            $ua,
+            $ref,
+        );
+        echo "[" .
+            date("H:i:s") .
+            "] ✅ Faucet diklaim dengan warna '$color'\n";
+        echo "[" . date("H:i:s") . "] 📩 Respons: " . strip_tags($res) . "\n";
     } else {
-        claimReward($rewardUrl, $cookie, $userAgent, $referer);
+        echo "[" . date("H:i:s") . "] ⚠️ Arahan captcha tidak dijumpai\n";
+    }
+}
+
+function countdown($sec)
+{
+    while ($sec > 0) {
+        echo "\033[1;33m⏳ Menunggu: {$sec}s\r\033[0m";
+        sleep(1);
+        $sec--;
+    }
+    echo "\n";
+}
+
+$lastFaucet = time();
+while (true) {
+    echo "\n[" . date("H:i:s") . "] 🔄 Kitaran bermula...\n";
+
+    $monster = getMonsterDetails($dashboard, $cookie, $userAgent, $referer);
+    echo "[" . date("H:i:s") . "] 🐉 Monster: {$monster["name"]}\n";
+    echo "[" .
+        date("H:i:s") .
+        "] ❤️ HP: {$monster["hpNow"]} / {$monster["hpMax"]} | 🧠 XP: {$monster["xp"]}\n";
+    echo "[" .
+        date("H:i:s") .
+        "] 🎁 Reward: {$monster["tokens"]} tokens ({$monster["ltc"]} LTC)\n";
+
+    [$dmgNow, $dmgMax] = getDamageStatus(
+        $dashboard,
+        $cookie,
+        $userAgent,
+        $referer,
+    );
+    echo "[" . date("H:i:s") . "] 💥 Damage: $dmgNow / $dmgMax\n";
+
+    $totalDamage = getTotalDamage($dashboard, $cookie, $userAgent, $referer);
+    if (!is_null($totalDamage)) {
+        echo "[" .
+            date("H:i:s") .
+            "] 🧨 Total Damage Keseluruhan: $totalDamage\n";
     }
 
-    // Claim cards
-    claimInventoryCard($statusUrl, $claimCardUrl, $cookie, $userAgent, $referer);
-    ClaimInventory($inventoryUrl, $cookie, $userAgent, $referer);
-
-    // Auto withdraw if balance threshold reached
-    if ($balance >= 0.0001) {
-        autoWithdraw($withdrawUrl, $cookie, $userAgent, $referer);
+    if ($dmgNow < $dmgMax) {
+        addDamage($addDamage, $cookie, $userAgent, $referer);
     }
 
-    sleep(60); // Wait 1 min
+    if ($monster["hpNow"] > 0) {
+        attackMonster($dashboard, $cookie, $userAgent, $referer);
+    } else {
+        claimReward($reward, $cookie, $userAgent, $referer);
+    }
 
+    claimCard($dashboard, $claimCard, $cookie, $userAgent, $referer);
+
+    $balance = getBalance($dashboard, $cookie, $userAgent, $referer);
+    echo "[" . date("H:i:s") . "] 💰 Balance: \033[1;32m$balance LTC\033[0m\n";
+
+    $dashboardHtml = curlGet($dashboard, $cookie, $userAgent, $referer);
+    $tokenBalance = getTokenBalance($dashboardHtml);
+    echo "[" . date("H:i:s") . "] 🪙 Token Balance: $tokenBalance tokens\n";
+
+    if ($tokenBalance >= 10000) {
+        autoWithdraw($withdraw, $cookie, $userAgent, $referer);
+    }
+
+    if (time() - $lastFaucet >= 300) {
+        claimFaucet($cookie, $userAgent, $referer);
+        $lastFaucet = time();
+    }
+    
+    echo "tunggu 60s";
+    sleep(60);
 }
