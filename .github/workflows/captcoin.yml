@@ -14,8 +14,9 @@ on:
       username:
         description: 'Username'
         required: true
-      #password:
-        #description: 'Password'
+      password:
+        description: 'Password'
+        required: true
 
 jobs:
   run-bot:
@@ -37,4 +38,4 @@ jobs:
         run: php captcoin/${{ github.event.inputs.bot }}
         env:
           USERNAME: ${{ github.event.inputs.username }}
-          PASSWORD: 'memeX3213!'
+          PASSWORD: ${{ github.event.inputs.password }}
