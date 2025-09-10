@@ -1,0 +1,70 @@
+name: Master Call
+
+on:
+  workflow_dispatch:
+    inputs:
+      bot:
+        type: choice
+        description: "Pilih bot yang mau dijalankan"
+        options:
+          - adscoin/adscoin.php
+          - captcoin/single.php
+          - captcoin/multi.php
+          - coolfaucet/coolfaucet.php
+        required: true
+      username:
+        description: "Username"
+        required: false
+      password:
+        description: "Password"
+        required: false
+      login_method:
+        type: choice
+        description: "Login method"
+        options: 
+          - nodejs
+          - cookie
+        required: false
+      login_value:
+        description: "Login value"
+        required: false
+      cookie:
+        description: "Cookie"
+        required: false
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      # Setup PHP
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      # Setup Node.js 
+      - name: Setup Node.js
+        if: ${{ github.event.inputs.login_method == 'nodejs' }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      # Simpan cookie 
+      - name: Save cookie
+        if: ${{ github.event.inputs.cookie != '' }}
+        run: echo "${{ github.event.inputs.cookie }}" > cookie.txt
+
+      # Run bot sesuai input choice
+      - name: Run selected bot
+        run: |
+          BOT="${{ github.event.inputs.bot }}"
+          echo "Running bot: $BOT"
+          php "$BOT"
+        env:
+          USERNAME: ${{ github.event.inputs.username }}
+          PASSWORD: ${{ github.event.inputs.password }}
+          LOGIN_METHOD: ${{ github.event.inputs.login_method }}
+          LOGIN_VALUE: ${{ github.event.inputs.login_value }}
+          COOKIE: ${{ github.event.inputs.cookie }}
