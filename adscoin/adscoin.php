@@ -42,7 +42,7 @@ function headers($req){
     ];
 }
 
-$id = getenv('GPGSID');
+$id = getenv('LOGIN');
 
 function claim($gpgsid){
     $host = "https://faucetwebservice.mobilecloudmining.ru/";
