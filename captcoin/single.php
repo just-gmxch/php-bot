@@ -50,8 +50,8 @@ function curlPost($url, $data) {
 
 // === Load config ===
 
- $username = getenv('USERNAME'); 
- $password = getenv('PASSWORD'); 
+ $username = getenv('LOGIN'); 
+ $password = getenv('PASS'); 
 /*
 $username = readline("user: ");
 $password = readline("pass: "); */
