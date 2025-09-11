@@ -1,0 +1,88 @@
+name: Master Call
+
+on:
+  workflow_dispatch:
+    inputs:
+      bot:
+        type: choice
+        description: "Pilih bot yang mau dijalankan"
+        options:
+          - adscoin/adscoin.php
+          - captcoin/captcoin.php
+          - coolfaucet/coolfaucet.php
+          - zerofaucet/zerofaucet.php
+        required: true
+      login:
+        description: "login"
+        required: false
+      pass:
+        description: "Password"
+        required: false
+      login_method:
+        type: choice
+        description: "method"
+        options: 
+          - none
+          - cookie
+          - nodejs
+        required: false
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: gmxch/php-bot  
+          path: php-bot
+      - name: Setup OCR
+        if: ${{ github.event.inputs.bot == 'zerofaucet/zerofaucet.php' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr imagemagick
+      # Setup 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      # Setup NodeJs
+      - name: Setup Node.js
+        if: ${{ inputs.login_method == 'nodejs' }}
+        run: |
+          npm install puppeteer
+          node <<'EOF'
+          const puppeteer = require('puppeteer');
+          const fs = require('fs');
+          (async () => {
+            const email = process.env.LOGIN;
+            const browser = await puppeteer.launch({
+              headless: true,
+              args: ['--no-sandbox','--disable-setuid-sandbox']
+            });
+            const page = await browser.newPage();
+            await page.goto('https://coolfaucet.hu/', {waitUntil: 'domcontentloaded', timeout: 0});
+            await page.type('input[name="email"]', email);
+            await page.click('button[type="submit"]');
+            await page.waitForFunction(() => document.body.innerText.includes('Balance:'), {timeout: 60000});
+            const cookies = await page.cookies();
+            const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+            fs.writeFileSync('cookie.txt', cookieString);
+            await browser.close();
+          })();
+        env:
+          LOGIN: ${{ inputs.login }}
+      # Setup Cookie
+      - name: Save cookie
+        if: ${{ github.event.inputs.login_method == 'cookie' }}
+        run: echo "${{ github.event.inputs.login }}" > cookie.txt
+
+      # Run bot sesuai input choice
+      - name: Run selected bot
+        run: |
+          BOT="${{ github.event.inputs.bot }}"
+          echo "Running bot: $BOT"
+          php "php-bot/$BOT"
+        env:
+          LOGIN: ${{ github.event.inputs.login }}
+          PASS: ${{ github.event.inputs.pass }}
