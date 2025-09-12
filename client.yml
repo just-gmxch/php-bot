@@ -33,6 +33,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          repository: gmxch/php-bot  
+          path: php-bot
       - name: Setup OCR
         if: ${{ github.event.inputs.bot == 'zerofaucet/zerofaucet.php' }}
         run: |
