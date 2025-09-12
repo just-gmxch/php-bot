@@ -2,7 +2,7 @@
 <?php
 date_default_timezone_set("Asia/Kuala_Lumpur");
 
-echo "\n\033[1;35m🔥 COOLFAUCET CREATOR BY - AKIEFX 🇲🇾\033[0m\n";
+echo "\n\033[1;35mðŸ”¥ COOLFAUCET CREATOR BY - AKIEFX ðŸ‡²ðŸ‡¾\033[0m\n";
 /* echo "\033[1;36mMasukkan full Cookie:\033[0m ";
 $cookie = trim(fgets(STDIN));
 echo "\033[1;36mMasukkan User-Agent:\033[0m ";
@@ -132,26 +132,26 @@ function getTokenBalance($html)
 function addDamage($url, $cookie, $ua, $ref)
 {
     curlPost($url, ["amount" => "20"], $cookie, $ua, $ref);
-    echo "[" . date("H:i:s") . "] 🧨 Damage +20 dihantar\n";
+    echo "[" . date("H:i:s") . "] ðŸ§¨ Damage +20 dihantar\n";
 }
 
 function attackMonster($url, $cookie, $ua, $ref)
 {
     curlPost($url, ["attack" => 1], $cookie, $ua, $ref);
-    echo "[" . date("H:i:s") . "] ⚔️ Serangan dihantar\n";
+    echo "[" . date("H:i:s") . "] âš”ï¸ Serangan dihantar\n";
 }
 
 function claimReward($url, $cookie, $ua, $ref)
 {
     curlPost($url, [], $cookie, $ua, $ref);
-    echo "[" . date("H:i:s") . "] 🎁 Reward dituntut\n";
+    echo "[" . date("H:i:s") . "] ðŸŽ Reward dituntut\n";
 }
 
 function claimCard($statusUrl, $claimUrl, $cookie, $ua, $ref)
 {
     $html = curlGet($statusUrl, $cookie, $ua, $ref);
     if (strpos($html, "Inventory Card") !== false) {
-        echo "[" . date("H:i:s") . "] 🃏 Kartu ditemukan! Mengklaim...\n";
+        echo "[" . date("H:i:s") . "] ðŸƒ Kartu ditemukan! Mengklaim...\n";
         curlPost($claimUrl, [], $cookie, $ua, $ref);
     }
 }
@@ -173,7 +173,7 @@ function autoWithdraw($url, $cookie, $ua, $ref)
         $ua,
         $ref,
     );
-    echo "[" . date("H:i:s") . "] 💸 Auto WD dihantar\n";
+    echo "[" . date("H:i:s") . "] ðŸ’¸ Auto WD dihantar\n";
 }
 
 function readCaptchaInstruction($html)
@@ -206,12 +206,12 @@ function claimFaucet($cookie, $ua, $ref)
     if (strpos($html, "Faucet not ready yet") !== false) {
         echo "[" .
             date("H:i:s") .
-            "] ⏄1�7 Faucet belum sedia. Tunggu sebentar...\n";
+            "] â„1¤7 Faucet belum sedia. Tunggu sebentar...\n";
         return;
     }
     $color = readCaptchaInstruction($html);
     if ($color) {
-        echo "[" . date("H:i:s") . "] 🧠 Arahan captcha: klik warna '$color'\n";
+        echo "[" . date("H:i:s") . "] ðŸ§  Arahan captcha: klik warna '$color'\n";
         $res = curlPost(
             "https://coolfaucet.hu/faucet_claim",
             ["color" => $color],
@@ -221,17 +221,17 @@ function claimFaucet($cookie, $ua, $ref)
         );
         echo "[" .
             date("H:i:s") .
-            "] ✄1�7 Faucet diklaim dengan warna '$color'\n";
-        echo "[" . date("H:i:s") . "] 📩 Respons: " . strip_tags($res) . "\n";
+            "] âœ„1¤7 Faucet diklaim dengan warna '$color'\n";
+        echo "[" . date("H:i:s") . "] ðŸ“© Respons: " . strip_tags($res) . "\n";
     } else {
-        echo "[" . date("H:i:s") . "] ⚠️ Arahan captcha tidak dijumpai\n";
+        echo "[" . date("H:i:s") . "] âš ï¸ Arahan captcha tidak dijumpai\n";
     }
 }
 
 function countdown($sec)
 {
     while ($sec > 0) {
-        echo "\033[1;33m⏄1�7 Menunggu: {$sec}s\r\033[0m";
+        echo "\033[1;33mâ„1¤7 Menunggu: {$sec}s\r\033[0m";
         sleep(1);
         $sec--;
     }
@@ -240,16 +240,16 @@ function countdown($sec)
 
 $lastFaucet = time();
 while (true) {
-    echo "\n[" . date("H:i:s") . "] 🔄 Kitaran bermula...\n";
+    echo "\n[" . date("H:i:s") . "] ðŸ”„ Kitaran bermula...\n";
 
     $monster = getMonsterDetails($dashboard, $cookie, $userAgent, $referer);
-    echo "[" . date("H:i:s") . "] 🐉 Monster: {$monster["name"]}\n";
+    echo "[" . date("H:i:s") . "] ðŸ‰ Monster: {$monster["name"]}\n";
     echo "[" .
         date("H:i:s") .
-        "] ❤️ HP: {$monster["hpNow"]} / {$monster["hpMax"]} | 🧠 XP: {$monster["xp"]}\n";
+        "] â¤ï¸ HP: {$monster["hpNow"]} / {$monster["hpMax"]} | ðŸ§  XP: {$monster["xp"]}\n";
     echo "[" .
         date("H:i:s") .
-        "] 🎁 Reward: {$monster["tokens"]} tokens ({$monster["ltc"]} LTC)\n";
+        "] ðŸŽ Reward: {$monster["tokens"]} tokens ({$monster["ltc"]} LTC)\n";
 
     [$dmgNow, $dmgMax] = getDamageStatus(
         $dashboard,
@@ -257,13 +257,13 @@ while (true) {
         $userAgent,
         $referer,
     );
-    echo "[" . date("H:i:s") . "] 💥 Damage: $dmgNow / $dmgMax\n";
+    echo "[" . date("H:i:s") . "] ðŸ’¥ Damage: $dmgNow / $dmgMax\n";
 
     $totalDamage = getTotalDamage($dashboard, $cookie, $userAgent, $referer);
     if (!is_null($totalDamage)) {
         echo "[" .
             date("H:i:s") .
-            "] 🧨 Total Damage Keseluruhan: $totalDamage\n";
+            "] ðŸ§¨ Total Damage Keseluruhan: $totalDamage\n";
     }
 
     if ($dmgNow < $dmgMax) {
@@ -279,11 +279,11 @@ while (true) {
     claimCard($dashboard, $claimCard, $cookie, $userAgent, $referer);
 
     $balance = getBalance($dashboard, $cookie, $userAgent, $referer);
-    echo "[" . date("H:i:s") . "] 💰 Balance: \033[1;32m$balance LTC\033[0m\n";
+    echo "[" . date("H:i:s") . "] ðŸ’° Balance: \033[1;32m$balance LTC\033[0m\n";
 
     $dashboardHtml = curlGet($dashboard, $cookie, $userAgent, $referer);
     $tokenBalance = getTokenBalance($dashboardHtml);
-    echo "[" . date("H:i:s") . "] 🪙 Token Balance: $tokenBalance tokens\n";
+    echo "[" . date("H:i:s") . "] ðŸª™ Token Balance: $tokenBalance tokens\n";
 
     if ($tokenBalance >= 10000) {
         autoWithdraw($withdraw, $cookie, $userAgent, $referer);
@@ -297,3 +297,4 @@ while (true) {
     echo "tunggu 60s";
     sleep(60);
 }
+
