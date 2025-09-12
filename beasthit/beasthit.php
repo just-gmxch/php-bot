@@ -2,7 +2,7 @@
 <?php
 date_default_timezone_set("Asia/Kuala_Lumpur");
 
-echo "\n\033[1;35mðŸ”¥ COOLFAUCET CREATOR BY - AKIEFX ðŸ‡²ðŸ‡¾\033[0m\n";
+echo "\n\033[1;35mðŸ”¥ BEASTHIT CREATOR BY - AKIEFX ðŸ‡²ðŸ‡¾\033[0m\n";
 /* echo "\033[1;36mMasukkan full Cookie:\033[0m ";
 $cookie = trim(fgets(STDIN));
 echo "\033[1;36mMasukkan User-Agent:\033[0m ";
@@ -297,4 +297,5 @@ while (true) {
     echo "tunggu 60s";
     sleep(60);
 }
+
 
