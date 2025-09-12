@@ -11,7 +11,7 @@ on:
           - captcoin/captcoin.php
           - coolfaucet/coolfaucet.php
           - zerofaucet/zerofaucet.php
-          - zanlix/zanlix.php
+          - beasthit/beasthit.php
         required: true
       login:
         description: "login"
@@ -33,9 +33,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          repository: gmxch/php-bot  
-          path: php-bot
       - name: Setup OCR
         if: ${{ github.event.inputs.bot == 'zerofaucet/zerofaucet.php' }}
         run: |
@@ -46,6 +43,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+
       # Setup NodeJs
       - name: Setup Node.js
         if: ${{ inputs.login_method == 'nodejs' }}
@@ -65,14 +63,12 @@ jobs:
             let url;
             if (bot === "coolfaucet/coolfaucet.php") {
               url = "https://coolfaucet.hu/";
-            } else if (bot === "zanlix/zanlix.php") {
-              url = "https://zanlix.eu/";
+            } else if (bot === "beasthit/beasthit.php") {
+              url = "https://beasthit.com/";
             } else {
               throw new Error("nodejs gagal : " + bot);
             }
-            await page.goto(url, {waitUntil: 'networkidle0', 'domcontentloaded', timeout: 0});
-            await page.waitForTimeout(2000);
-            await page.waitForSelector('input[name="email"]', { visible: true, timeout: 60000 });
+            await page.goto(url, {waitUntil: 'domcontentloaded', timeout: 0});
             await page.type('input[name="email"]', email);
             await page.click('button[type="submit"]');
             await page.waitForFunction(() => document.body.innerText.includes('Balance:'), {timeout: 60000});
@@ -95,7 +91,7 @@ jobs:
         run: |
           BOT="${{ github.event.inputs.bot }}"
           echo "Running bot: $BOT"
-          php "php-bot/$BOT"
+          php "$BOT"
         env:
           LOGIN: ${{ github.event.inputs.login }}
           PASS: ${{ github.event.inputs.pass }}
