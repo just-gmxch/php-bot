@@ -11,7 +11,7 @@ on:
           - captcoin/captcoin.php
           - coolfaucet/coolfaucet.php
           - zerofaucet/zerofaucet.php
-          - zanlix/zanlix.php
+          - beasthit/beasthit.php
         required: true
       login:
         description: "login"
@@ -33,9 +33,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          repository: gmxch/php-bot  
-          path: php-bot
       - name: Setup OCR
         if: ${{ github.event.inputs.bot == 'zerofaucet/zerofaucet.php' }}
         run: |
@@ -65,8 +62,8 @@ jobs:
             let url;
             if (bot === "coolfaucet/coolfaucet.php") {
               url = "https://coolfaucet.hu/";
-            } else if (bot === "zanlix/zanlix.php") {
-              url = "https://zanlix.eu/";
+            } else if (bot === "beasthit/beasthit.php") {
+              url = "https://beasthit.com/";
             } else {
               throw new Error("nodejs gagal : " + bot);
             }
@@ -87,7 +84,6 @@ jobs:
       - name: Save cookie
         if: ${{ github.event.inputs.login_method == 'cookie' }}
         run: echo "${{ github.event.inputs.login }}" > cookie.txt
-
       # Run bot sesuai input choice
       - name: Run selected bot
         run: |
