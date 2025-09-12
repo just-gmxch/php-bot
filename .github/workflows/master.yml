@@ -43,7 +43,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-
       # Setup NodeJs
       - name: Setup Node.js
         if: ${{ inputs.login_method == 'nodejs' }}
@@ -85,7 +84,6 @@ jobs:
       - name: Save cookie
         if: ${{ github.event.inputs.login_method == 'cookie' }}
         run: echo "${{ github.event.inputs.login }}" > cookie.txt
-
       # Run bot sesuai input choice
       - name: Run selected bot
         run: |
