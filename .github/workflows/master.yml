@@ -11,6 +11,7 @@ on:
           - captcoin/captcoin.php
           - coolfaucet/coolfaucet.php
           - zerofaucet/zerofaucet.php
+          - zanlix/zanlix.php
         required: true
       login:
         description: "login"
@@ -53,12 +54,21 @@ jobs:
           const fs = require('fs');
           (async () => {
             const email = process.env.LOGIN;
+            const bot   = process.env.BOT; 
             const browser = await puppeteer.launch({
               headless: true,
               args: ['--no-sandbox','--disable-setuid-sandbox']
             });
             const page = await browser.newPage();
-            await page.goto('https://coolfaucet.hu/', {waitUntil: 'domcontentloaded', timeout: 0});
+            let url;
+            if (bot === "coolfaucet/coolfaucet.php") {
+              url = "https://coolfaucet.hu/";
+            } else if (bot === "zanlix/zanlix.php") {
+              url = "https://zanlix.eu/";
+            } else {
+              throw new Error("nodejs gagal : " + bot);
+            }
+            await page.goto(url, {waitUntil: 'domcontentloaded', timeout: 0});
             await page.type('input[name="email"]', email);
             await page.click('button[type="submit"]');
             await page.waitForFunction(() => document.body.innerText.includes('Balance:'), {timeout: 60000});
@@ -67,8 +77,10 @@ jobs:
             fs.writeFileSync('cookie.txt', cookieString);
             await browser.close();
           })();
+          EOF
         env:
           LOGIN: ${{ inputs.login }}
+          BOT: ${{ inputs.bot }}
       # Setup Cookie
       - name: Save cookie
         if: ${{ github.event.inputs.login_method == 'cookie' }}

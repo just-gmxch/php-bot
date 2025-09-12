@@ -7,7 +7,7 @@ const fs = require('fs');
         args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
-    await page.goto('https://coolfaucet.hu/', { waitUntil: 'domcontentloaded', timeout: 0 });
+    await page.goto('https://zanlix.eu/', { waitUntil: 'domcontentloaded', timeout: 0 });
     await page.type('input[name="email"]', email);
     await page.click('button[type="submit"]');
     await page.waitForFunction(
