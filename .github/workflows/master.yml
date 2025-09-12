@@ -71,7 +71,7 @@ jobs:
               throw new Error("nodejs gagal : " + bot);
             }
             await page.goto(url, {waitUntil: 'domcontentloaded', timeout: 0});
-            await page.waitForSelector('form input[name="email"]', { visible: true, timeout: 60000 });
+            await page.waitForSelector('input[name="email"]', { visible: true, timeout: 60000 });
             await page.type('input[name="email"]', email);
             await page.click('button[type="submit"]');
             await page.waitForFunction(() => document.body.innerText.includes('Balance:'), {timeout: 60000});
